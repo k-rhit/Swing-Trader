@@ -1,9 +1,31 @@
+"""
+Convenience accessors for OHLCV columns.
+
+Using these helpers instead of df["Close"] directly makes strategy code more
+readable and provides a single place to adapt if column naming ever changes.
+"""
+
+import pandas as pd
+
+
 class OHLCV:
+
     @staticmethod
-    def low(df): return df["Low"]
+    def open(df: pd.DataFrame) -> pd.Series:
+        return df["Open"]
+
     @staticmethod
-    def high(df): return df["High"]
+    def high(df: pd.DataFrame) -> pd.Series:
+        return df["High"]
+
     @staticmethod
-    def close(df): return df["Close"]
+    def low(df: pd.DataFrame) -> pd.Series:
+        return df["Low"]
+
     @staticmethod
-    def open(df): return df["Open"]
+    def close(df: pd.DataFrame) -> pd.Series:
+        return df["Close"]
+
+    @staticmethod
+    def volume(df: pd.DataFrame) -> pd.Series:
+        return df["Volume"]

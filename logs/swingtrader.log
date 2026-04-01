@@ -1,0 +1,1 @@
+2026-04-01 09:22:15,138 — ERROR — swingtrader — Configuration error: TELEGRAM_BOT_TOKEN is not set. Add it as a GitHub Secret or export it in your shell.

@@ -2,28 +2,42 @@ name: Daily Swing Trader Run
 
 on:
   schedule:
-    - cron: "30 13 * * *"  # 7 PM IST → 13:30 UTC
+    # 7:00 PM IST = 13:30 UTC (Mon–Fri only — markets are closed on weekends)
+    - cron: "30 13 * * 1-5"
+  # Allow manual trigger from the Actions tab for testing
   workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    timeout-minutes: 30   # safety: kill the job if it hangs
 
-      - name: Install Python
-        uses: actions/setup-python@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
+          cache: "pip"          # cache the pip download to speed up runs
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Run Swing Trader
+      - name: Run Swing Trader Engine
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TG_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-        run: |
-          python -m src.main
+          # Optional: override fetch period (default is 3y)
+          # FETCH_PERIOD: "3y"
+        run: python -m src.main
+
+      - name: Upload sent_signals.json as artefact (for debugging)
+        if: always()   # upload even if the run step failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: sent-signals-${{ github.run_id }}
+          path: sent_signals.json
+          if-no-files-found: ignore
+          retention-days: 7
